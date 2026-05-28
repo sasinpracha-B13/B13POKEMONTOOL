@@ -49,6 +49,46 @@ html, body {
     line-height: 1.5;
 }
 
+/* iPhone PWA safe areas — keep sticky bars away from the notch /
+ * Dynamic Island, and the footer above the home indicator. Uses the
+ * env() values from viewport-fit=cover in <meta viewport>. */
+@supports (padding: env(safe-area-inset-top)) {
+    .offline-banner,
+    .update-banner {
+        padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    }
+    .topbar {
+        padding-top: calc(14px + env(safe-area-inset-top, 0px));
+        padding-left: calc(24px + env(safe-area-inset-left, 0px));
+        padding-right: calc(24px + env(safe-area-inset-right, 0px));
+    }
+    main {
+        padding-left: calc(24px + env(safe-area-inset-left, 0px));
+        padding-right: calc(24px + env(safe-area-inset-right, 0px));
+    }
+    footer {
+        padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+        padding-left: calc(20px + env(safe-area-inset-left, 0px));
+        padding-right: calc(20px + env(safe-area-inset-right, 0px));
+    }
+    @media (max-width: 640px) {
+        .topbar {
+            padding-top: calc(10px + env(safe-area-inset-top, 0px));
+            padding-left: calc(14px + env(safe-area-inset-left, 0px));
+            padding-right: calc(14px + env(safe-area-inset-right, 0px));
+        }
+        main {
+            padding-left: calc(14px + env(safe-area-inset-left, 0px));
+            padding-right: calc(14px + env(safe-area-inset-right, 0px));
+        }
+        footer {
+            padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+            padding-left: calc(14px + env(safe-area-inset-left, 0px));
+            padding-right: calc(14px + env(safe-area-inset-right, 0px));
+        }
+    }
+}
+
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
