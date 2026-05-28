@@ -123,7 +123,8 @@ function _wireCacheControls() {
     });
 
     document.getElementById('reload-app')?.addEventListener('click', async () => {
-        if (!confirm('โหลด version ใหม่จาก server? (clear app shell cache + reload)')) return;
+        if (!confirm('โหลด version ใหม่จาก server? (clear app shell cache + unregister SW + reload)')) return;
+        // Clear caches (both via SW message and directly, to be sure)
         if (navigator.serviceWorker?.controller) {
             navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_ALL_CACHES' });
         }
@@ -131,7 +132,17 @@ function _wireCacheControls() {
             const names = await caches.keys();
             await Promise.all(names.map(n => caches.delete(n)));
         }
-        location.reload();
+        // Unregister the SW so the next page load goes straight to the
+        // network — this is critical on iOS Safari where the SW can
+        // otherwise stay sticky across reloads.
+        if (navigator.serviceWorker) {
+            try {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map(r => r.unregister()));
+            } catch (e) { /* ignore */ }
+        }
+        // Force a fresh navigation (Safari sometimes returns the bfcache otherwise)
+        location.replace(location.pathname + '?v=' + Date.now());
     });
 }
 

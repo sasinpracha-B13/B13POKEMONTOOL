@@ -723,5 +723,5 @@ const TYPES = TYPES_MODERN;
 
 /* App version — bump when shipping a new release.
  * Mirrored in sw.js APP_SHELL_VERSION when files change. */
-const APP_VERSION = '1.7.1';
+const APP_VERSION = '1.7.2';
 const APP_BUILD_DATE = '2026-05-28';

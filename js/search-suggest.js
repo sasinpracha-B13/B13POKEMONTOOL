@@ -140,11 +140,23 @@ function attachAutocomplete(inputEl, onSelect) {
                 </div>
             `;
         }).join('');
+        const usePointer = ('PointerEvent' in window);
         dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
-            item.addEventListener('mousedown', (e) => {
-                e.preventDefault();  // prevent input blur before we read suggestion
+            // pointerdown fires reliably on BOTH mouse + touch (iOS Safari
+            // doesn't always synthesize mousedown on div taps, which made
+            // suggestions un-tappable on phones). preventDefault stops the
+            // input's blur from hiding the dropdown before we read .dataset.
+            const pick$ = (e) => {
+                e.preventDefault();
                 pick(parseInt(item.dataset.idx, 10));
-            });
+            };
+            if (usePointer) {
+                item.addEventListener('pointerdown', pick$);
+            } else {
+                // Legacy fallback for browsers without Pointer Events.
+                item.addEventListener('mousedown', pick$);
+                item.addEventListener('touchstart', pick$, { passive: false });
+            }
         });
     }
 
