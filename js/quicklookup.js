@@ -76,6 +76,15 @@ async function quickSearch(query) {
     result.innerHTML = '<div class="loading-state"><div class="loader"></div><p>กำลังโหลด...</p></div>';
 
     try {
+        // Defense in depth — normalize partial prefixes / aliases / IDs
+        // before hitting PokéAPI. See loadDetailPokemon for rationale.
+        if (typeof ensureSpeciesList === 'function') {
+            try { await ensureSpeciesList(); } catch (e) {}
+        }
+        if (typeof resolveSearchInput === 'function') {
+            const resolved = resolveSearchInput(query);
+            if (resolved && resolved !== query) query = resolved;
+        }
         // Step 1: fetch the requested pokemon (variant) and its species
         const pokemon = await fetchPokemon(query);
         const wasCached = lastWasCached();

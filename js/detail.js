@@ -71,6 +71,17 @@ async function loadDetailPokemon(query) {
     container.innerHTML = '<div class="loading-state"><div class="loader"></div><p>กำลังโหลดข้อมูล...</p></div>';
 
     try {
+        // Defense in depth: many call paths land here (search btn, recent
+        // chips, URL ?q=, suggestion Detail btn, quicklookup "see full
+        // details"). Normalize the query through the species list / alias
+        // resolver so partial prefixes still work no matter who called us.
+        if (typeof ensureSpeciesList === 'function') {
+            try { await ensureSpeciesList(); } catch (e) {}
+        }
+        if (typeof resolveSearchInput === 'function') {
+            const resolved = resolveSearchInput(query);
+            if (resolved && resolved !== query) query = resolved;
+        }
         const pokemon = await fetchPokemon(query);
         const pokemonCached = lastWasCached();
         const species = await fetchSpecies(pokemon.species.name);
