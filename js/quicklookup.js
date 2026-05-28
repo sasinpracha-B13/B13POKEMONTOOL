@@ -23,7 +23,12 @@ function initQuickLookup() {
     // Autocomplete handles Enter + click-suggestion. We pipe selections
     // through quickSearch() so behavior stays consistent.
     attachAutocomplete(input, name => quickSearch(name));
-    btn.addEventListener('click', () => quickSearch(input.value));
+    btn.addEventListener('click', async () => {
+        await ensureSpeciesList();
+        const resolved = resolveSearchInput(input.value);
+        if (resolved && resolved !== input.value) input.value = resolved;
+        quickSearch(resolved);
+    });
 
     renderQuickRecent();
 

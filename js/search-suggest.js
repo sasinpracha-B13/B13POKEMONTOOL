@@ -55,6 +55,52 @@ function normalizeSearch(s) {
     return (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
+/* Resolve a free-form user search to the best candidate name:
+ *   - exact species match (case/punctuation-insensitive) → that species
+ *   - matches form alias (e.g. "alolan vulpix")          → form's target
+ *   - otherwise first findSuggestions() result           → that name
+ *   - if nothing matches at all                          → input as-is
+ *
+ * Used by the search BUTTON handlers so users who type a prefix and
+ * hit "ค้นหา" still land on the right Pokémon instead of getting a
+ * 404 from the raw text. */
+function resolveSearchInput(rawInput) {
+    const raw = (rawInput || '').trim();
+    if (!raw) return '';
+
+    // Numeric → species ID exact match
+    const num = parseInt(raw, 10);
+    if (!isNaN(num) && num > 0 && String(num) === raw) {
+        if (_speciesList) {
+            const hit = _speciesList.find(p => p.id === num);
+            if (hit) return hit.name;
+        }
+        return raw;
+    }
+
+    const q = normalizeSearch(raw);
+    if (!q) return raw;
+
+    // Direct species name match (handles "Mr. Mime" → "mr-mime")
+    if (_speciesList) {
+        const exact = _speciesList.find(p => normalizeSearch(p.name) === q);
+        if (exact) return exact.name;
+    }
+
+    // Form alias exact match
+    if (typeof FORM_ALIASES !== 'undefined') {
+        const aliasExact = FORM_ALIASES.find(f => normalizeSearch(f.alias) === q);
+        if (aliasExact) return aliasExact.target;
+    }
+
+    // Fall back to top suggestion (prefix or substring)
+    const top = findSuggestions(raw, 1);
+    if (top.length > 0) return top[0].name;
+
+    // Nothing — return raw so the caller's error path runs
+    return raw;
+}
+
 function findSuggestions(query, max = 8) {
     if (!_speciesList) return [];
     const raw = (query || '').trim();

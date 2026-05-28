@@ -18,7 +18,12 @@ function initDetail() {
     const input = document.getElementById('detail-search');
     const btn = document.getElementById('detail-search-btn');
     attachAutocomplete(input, name => loadDetailPokemon(name));
-    btn.addEventListener('click', () => loadDetailPokemon(input.value));
+    btn.addEventListener('click', async () => {
+        await ensureSpeciesList();
+        const resolved = resolveSearchInput(input.value);
+        if (resolved && resolved !== input.value) input.value = resolved;
+        loadDetailPokemon(resolved);
+    });
 
     renderDetailRecent();
 
