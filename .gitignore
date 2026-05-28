@@ -1,0 +1,17 @@
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node deps (we don't have any but in case)
+node_modules/
+package-lock.json
+
+# Dev-only
+.claude/
+*.log
+
+# Local builds
+deploy-bundle/
+*.zip

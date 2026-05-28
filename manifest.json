@@ -1,0 +1,27 @@
+{
+    "name": "Pokémon Tool",
+    "short_name": "PokeTool",
+    "description": "เครื่องมือช่วยเล่นโปเกม่อน — type matchup, forms, moves, evolutions",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#0b1320",
+    "theme_color": "#0b1320",
+    "orientation": "any",
+    "lang": "th",
+    "categories": ["games", "utilities"],
+    "icons": [
+        {
+            "src": "icons/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "icons/icon-maskable.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "maskable"
+        }
+    ]
+}

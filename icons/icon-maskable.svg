@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Pokémon Tool">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="80%">
+      <stop offset="0%" stop-color="#18294a"/>
+      <stop offset="100%" stop-color="#0b1320"/>
+    </radialGradient>
+    <linearGradient id="bolt" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <!-- Maskable: full canvas filled, important content within center 80% safe zone -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- Lightning bolt scaled down to fit safe zone (~64% of canvas) -->
+  <g transform="translate(256 256) scale(0.78) translate(-256 -256)">
+    <circle cx="256" cy="256" r="184" fill="none" stroke="#28406a" stroke-width="6" stroke-dasharray="6 10" opacity="0.55"/>
+    <path d="M286 76 L142 290 L238 290 L226 436 L370 220 L274 220 L286 76 Z"
+          fill="url(#bolt)" stroke="#7c5a00" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+</svg>

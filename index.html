@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b1320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PokeTool">
+    <title>Pokémon Tool - เครื่องมือเล่นโปเกม่อน</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="offline-banner" class="offline-banner" style="display:none;"></div>
+    <div id="sw-update-banner" class="update-banner" style="display:none;"></div>
+
+    <header class="topbar">
+        <div class="topbar-row">
+            <div class="brand">
+                <span class="logo">⚡</span>
+                <div>
+                    <h1>Pokémon Tool</h1>
+                    <p class="subtitle">เครื่องมือช่วยเล่นโปเกม่อน</p>
+                </div>
+            </div>
+            <div class="global-controls" id="global-controls"></div>
+        </div>
+        <div id="chart-era-banner" class="info-banner" style="display:none;"></div>
+        <nav class="tabs" id="tabs">
+            <button class="tab active" data-tab="quick">⚡ Quick Lookup</button>
+            <button class="tab" data-tab="calc">🧮 Type Calc</button>
+            <button class="tab" data-tab="team">🛡️ My Team</button>
+            <button class="tab" data-tab="detail">📖 Pokémon Detail</button>
+            <button class="tab" data-tab="chart">📊 Type Chart</button>
+            <button class="tab" data-tab="natures">🌱 Natures</button>
+            <button class="tab" data-tab="abilities">✨ Abilities</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- ========== TAB 1: QUICK LOOKUP (PRIMARY) ========== -->
+        <section class="panel active" id="panel-quick">
+            <div class="panel-head">
+                <h2>Quick Lookup
+                    <span class="data-badge verified era-badge" data-prefix="Static Verified · " title="Type chart และการคำนวณ matchup ตรวจสอบแล้ว"></span>
+                </h2>
+                <p>ค้นชื่อโปเกม่อน → ดูธาตุ จุดอ่อน จุดต้านทาน และธาตุที่ควรใช้ตี — ภายในวินาทีเดียว</p>
+            </div>
+
+            <div class="search-bar quick-search">
+                <div class="search-input-wrap">
+                    <input type="text" id="quick-search" placeholder="พิมพ์ชื่อ (char, gyara, mr mime) หรือเลข Pokédex" autocomplete="off">
+                </div>
+                <button id="quick-search-btn">ค้นหา</button>
+            </div>
+
+            <div class="recent-bar">
+                <span class="recent-label">ดูล่าสุด:</span>
+                <div id="quick-recent"></div>
+            </div>
+
+            <div class="quick-result" id="quick-result">
+                <div class="empty-state">
+                    <p>⚡ พิมพ์ชื่อโปเกม่อนเพื่อเริ่ม</p>
+                    <p class="empty-hint">หรือใช้ <a href="#" data-jump-tab="calc">Type Calc</a> ถ้าจำธาตุได้แล้ว</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== TAB 2: TYPE CALCULATOR (MANUAL) ========== -->
+        <section class="panel" id="panel-calc">
+            <div class="panel-head">
+                <h2>Type Calculator (Manual)
+                    <span class="data-badge verified era-badge" data-prefix="Static Verified · "></span>
+                </h2>
+                <p>เลือก Type 1 และ Type 2 เอง → ดูผล matchup เหมือน Quick Lookup</p>
+            </div>
+
+            <div class="calc-section">
+                <label>Type 1 (จำเป็น)</label>
+                <div class="type-picker" id="type-picker-1"></div>
+                <div class="type-picker-secondary">
+                    <label>Type 2 (เลือกได้)
+                        <button class="link-btn" id="clear-type-2">ล้าง</button>
+                    </label>
+                    <div class="type-picker" id="type-picker-2"></div>
+                </div>
+            </div>
+
+            <div class="quick-result" id="calc-result"></div>
+        </section>
+
+        <!-- ========== TAB: MY TEAM ========== -->
+        <section class="panel" id="panel-team">
+            <div class="panel-head">
+                <h2>My Team
+                    <span class="data-badge verified era-badge" data-prefix="Coverage · "></span>
+                </h2>
+                <p>เพิ่มสูงสุด 6 ตัว — วิเคราะห์จุดอ่อนรวมและ matchup ทันที</p>
+            </div>
+
+            <div class="team-add-bar">
+                <div class="search-bar">
+                    <div class="search-input-wrap">
+                        <input type="text" id="team-search" placeholder="พิมพ์ชื่อ (vulpix, alolan vulpix, mega charizard x, wash rotom)" autocomplete="off">
+                    </div>
+                    <button id="team-add-btn">+ Add</button>
+                </div>
+                <div class="team-meta-row">
+                    <div class="team-status" id="team-status"></div>
+                    <button class="link-btn" id="team-empty-all" style="display:none;">🗑 Empty team</button>
+                </div>
+            </div>
+
+            <div id="import-preview-banner" class="import-preview-banner" style="display:none;"></div>
+
+            <div class="team-slots" id="team-slots"></div>
+
+            <div class="team-analysis" id="team-analysis"></div>
+
+            <div class="team-presets-section">
+                <div class="presets-head">
+                    <h3>📋 Saved Teams <span id="presets-count" class="presets-count"></span></h3>
+                    <div class="presets-actions">
+                        <button id="save-team-btn" class="link-btn presets-action-primary">💾 Save</button>
+                        <button id="save-team-as-new-btn" class="link-btn presets-action-primary" style="display:none;">📑 Save as new</button>
+                        <button id="share-team-btn" class="link-btn presets-action-primary">🔗 Share</button>
+                    </div>
+                </div>
+                <div class="presets-utilities">
+                    <button id="export-presets-btn" class="link-btn presets-utility-btn" title="Backup all presets + current team เป็นไฟล์ JSON">📥 Export JSON</button>
+                    <button id="restore-presets-btn" class="link-btn presets-utility-btn" title="Restore presets จากไฟล์ JSON">📤 Restore from JSON</button>
+                    <input type="file" id="restore-file-input" accept=".json,application/json" hidden>
+                </div>
+                <div id="presets-list" class="presets-list"></div>
+            </div>
+        </section>
+
+        <div id="import-dialog" class="import-dialog" style="display:none;"></div>
+
+        <!-- ========== TAB 3: POKEMON DETAIL ========== -->
+        <section class="panel" id="panel-detail">
+            <div class="panel-head">
+                <h2>Pokémon Detail
+                    <span class="data-badge api">PokéAPI</span>
+                </h2>
+                <p>ค้นด้วยชื่อ → เลือก form ได้ → ดูข้อมูลละเอียดแยกแท็บ</p>
+            </div>
+
+            <div class="search-bar">
+                <div class="search-input-wrap">
+                    <input type="text" id="detail-search" placeholder="พิมพ์ชื่อบางส่วน (vulpix, char, rotom, type null)" autocomplete="off">
+                </div>
+                <button id="detail-search-btn">ค้นหา</button>
+            </div>
+
+            <div class="recent-bar">
+                <span class="recent-label">ดูล่าสุด:</span>
+                <div id="detail-recent"></div>
+            </div>
+
+            <div class="detail-container" id="detail-container">
+                <div class="empty-state">
+                    <p>📖 พิมพ์ชื่อโปเกม่อนเพื่อเริ่ม</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== TAB 4: TYPE CHART REFERENCE ========== -->
+        <section class="panel" id="panel-chart">
+            <div class="panel-head">
+                <h2>ตารางแพ้ชนะธาตุ (Reference)
+                    <span class="data-badge verified era-badge" data-prefix="Static Verified · "></span>
+                </h2>
+                <p>คลิกที่ชื่อธาตุเพื่อไฮไลต์ • <span class="legend-2x">2× โจมตีได้ผลมาก</span> • <span class="legend-half">½× โจมตีได้ผลน้อย</span> • <span class="legend-0x">0× ไม่มีผล</span></p>
+            </div>
+            <div class="chart-wrapper">
+                <table class="type-chart" id="type-chart"></table>
+            </div>
+        </section>
+
+        <!-- ========== TAB 5: NATURES ========== -->
+        <section class="panel" id="panel-natures">
+            <div class="panel-head">
+                <h2>ตารางนิสัย (Nature)
+                    <span class="data-badge verified">Static Verified</span>
+                </h2>
+                <p>นิสัยที่เพิ่มสเตตัส +10% และลดสเตตัส −10%</p>
+            </div>
+            <div class="nature-grid" id="nature-grid"></div>
+        </section>
+
+        <!-- ========== TAB 6: ABILITIES ========== -->
+        <section class="panel" id="panel-abilities">
+            <div class="panel-head">
+                <h2>ความสามารถ (Ability)
+                    <span class="data-badge api">PokéAPI</span>
+                </h2>
+                <p>ค้นหาความสามารถจากชื่อภาษาอังกฤษ</p>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="ability-search" placeholder="เช่น overgrow, intimidate, levitate..." autocomplete="off">
+                <button id="ability-search-btn">ค้นหา</button>
+            </div>
+
+            <div class="ability-list" id="ability-list"></div>
+            <div class="ability-detail" id="ability-detail"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>ข้อมูลโปเกม่อนจาก <a href="https://pokeapi.co/" target="_blank">PokéAPI</a> • Type chart: <span class="era-badge" data-prefix=""></span> (ตาม Bulbapedia)</p>
+        <div class="cache-controls">
+            <button id="clear-api-cache" class="link-btn" title="ลบข้อมูลโปเกม่อนที่ cache ไว้ — แอปจะดึงสดครั้งถัดไป">🧹 Clear Pokémon cache</button>
+            <span class="cache-controls-sep">·</span>
+            <button id="reload-app" class="link-btn" title="ล้าง app shell + reload เพื่อรับ version ล่าสุด">🔄 Update app</button>
+            <span class="cache-controls-sep">·</span>
+            <span id="sw-status" class="sw-status">SW: …</span>
+            <span class="cache-controls-sep">·</span>
+            <span id="app-version" class="app-version" title="app version · build date"></span>
+        </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/version.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/search-suggest.js"></script>
+    <script src="js/chart.js"></script>
+    <script src="js/matchup-ui.js"></script>
+    <script src="js/quicklookup.js"></script>
+    <script src="js/calc.js"></script>
+    <script src="js/team.js"></script>
+    <script src="js/detail.js"></script>
+    <script src="js/natures.js"></script>
+    <script src="js/abilities.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
