@@ -1326,6 +1326,28 @@ function _buildCandidatePool(typeData, patchType, dexCap, inTeam) {
     return Array.from(pool.values()).slice(0, SUGGEST_POOL_SIZE);
 }
 
+/* Extract base stats { hp, atk, def, spa, spd, spe, bst, roles[] } */
+function _extractStats(pokemon) {
+    const stat = name => pokemon.stats.find(s => s.stat.name === name)?.base_stat || 0;
+    const hp  = stat('hp');
+    const atk = stat('attack');
+    const def = stat('defense');
+    const spa = stat('special-attack');
+    const spd = stat('special-defense');
+    const spe = stat('speed');
+    const bst = hp + atk + def + spa + spd + spe;
+
+    // Role heuristics (loose, just for surface hint)
+    const roles = [];
+    const bulk = hp + def + spd;
+    const maxAtk = Math.max(atk, spa);
+    if (bulk >= 280) roles.push('Bulky');
+    if (spe >= 100) roles.push('Fast');
+    if (maxAtk >= 120) roles.push(atk > spa ? 'Strong Atk' : 'Strong SpA');
+    if (bst >= 600) roles.push('Pseudo-leg');
+    return { hp, atk, def, spa, spd, spe, bst, roles, maxAtk, bulk };
+}
+
 /* Fetch /pokemon + /pokemon-species + /evolution-chain for one
  * candidate in parallel; return enriched candidate or null. */
 async function _enrichCandidate(c) {
@@ -1351,6 +1373,7 @@ async function _enrichCandidate(c) {
             types: pokemon.types.map(t => t.type.name),
             sprite: pokemon.sprites.other?.['official-artwork']?.front_default
                 || pokemon.sprites.front_default || '',
+            stats: _extractStats(pokemon),
             isFinal,
             chainId,
             source: c.source
@@ -1404,9 +1427,17 @@ async function findSuggestedPokemon(patchType, team, fixes, dexCap) {
             else if (eff === 4)    { score -= 4; exposes.push({ type: p.type, eff: 4 }); }
         }
         if (helps.length > 1) score += 2;
-        // Curated picks get a tiny tiebreaker bump so well-known fits
-        // win over equally-scored newcomers without dominating.
+        // Curated picks get a tiny tiebreaker bump
         if (c.source === 'curated') score += 0.5;
+        // BST tier bonus: weak Pokémon get penalty; strong get +
+        if (c.stats) {
+            const bst = c.stats.bst;
+            if (bst >= 600)      score += 2;     // Pseudo-legendary tier
+            else if (bst >= 525) score += 1;     // Strong final-evo
+            else if (bst >= 450) score += 0.5;   // Decent
+            else if (bst < 350)  score -= 2;     // Frail; usually not viable patch
+            else if (bst < 400)  score -= 1;
+        }
         return { ...c, score: Math.round(score * 10) / 10, helps, exposes };
     });
 
@@ -1450,6 +1481,23 @@ function _renderSuggestedHtml(result, patchType) {
         const addTitle = teamFull ? 'ทีมเต็ม (6 ตัว)' : 'เพิ่มเข้าทีม';
         const curatedMark = c.source === 'curated'
             ? '<span class="sug-curated" title="Common pick">★</span>' : '';
+
+        // Stats panel — BST tier badge + role tags
+        let statsHtml = '';
+        if (c.stats) {
+            const s = c.stats;
+            const tierClass = s.bst >= 600 ? 'tier-elite' : s.bst >= 525 ? 'tier-strong' : s.bst >= 450 ? 'tier-decent' : 'tier-weak';
+            const rolesHtml = s.roles.length
+                ? s.roles.map(r => `<span class="sug-role-tag">${r}</span>`).join('')
+                : '';
+            statsHtml = `
+                <div class="sug-stats">
+                    <span class="sug-bst ${tierClass}" title="HP ${s.hp} · Atk ${s.atk} · Def ${s.def} · SpA ${s.spa} · SpD ${s.spd} · Spe ${s.spe}">BST ${s.bst}</span>
+                    ${rolesHtml}
+                </div>
+            `;
+        }
+
         return `
             <div class="suggested-item" data-name="${c.name}">
                 <div class="sug-sprite-wrap">
@@ -1463,6 +1511,7 @@ function _renderSuggestedHtml(result, patchType) {
                     <div class="sug-types">
                         ${c.types.map(t => `<span class="type-badge ${t} muted">${capitalize(t)}</span>`).join('')}
                     </div>
+                    ${statsHtml}
                     <div class="sug-reason">${helpsTxt}${exposesTxt}</div>
                 </div>
                 <div class="sug-actions">

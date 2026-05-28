@@ -147,18 +147,18 @@ function _renderDetailCard() {
         </div>
     ` : '';
 
-    const subtabs = [
-        { id: 'summary',   label: 'Summary' },
-        { id: 'matchups',  label: 'Matchups' },
-        { id: 'stats',     label: 'Stats' },
-        { id: 'evolution', label: 'Evolution' },
-        { id: 'abilities', label: 'Abilities' },
-        { id: 'moves',     label: 'Moves' },
-        { id: 'locations', label: 'Locations' }
+    // TOC anchors — same IDs used in the section blocks below
+    const sections = [
+        { id: 'summary',   label: '📋 Summary' },
+        { id: 'matchups',  label: '⚔️ Matchups' },
+        { id: 'stats',     label: '📊 Stats' },
+        { id: 'evolution', label: '🔄 Evolution' },
+        { id: 'abilities', label: '✨ Abilities' },
+        { id: 'moves',     label: '🎯 Moves' },
+        { id: 'locations', label: '📍 Locations' }
     ];
 
     const cachedBadge = pokemonCached ? '<span class="data-badge cached">Cached</span>' : '';
-
     const displayName = prettyPokemonName(pokemon.name, species.name);
 
     const html = `
@@ -173,12 +173,18 @@ function _renderDetailCard() {
                     ${formSelect}
                 </div>
             </div>
-            <div class="detail-subtabs">
-                ${subtabs.map(s => `
-                    <button class="detail-subtab ${s.id === _detailSubtab ? 'active' : ''}" data-subtab="${s.id}">${s.label}</button>
-                `).join('')}
+            <div class="detail-toc">
+                ${sections.map(s => `<a class="detail-toc-link" href="#detail-sec-${s.id}" data-target="detail-sec-${s.id}">${s.label}</a>`).join('')}
             </div>
-            <div class="detail-content" id="detail-content"></div>
+            <div class="detail-content detail-content-long">
+                <section id="detail-sec-summary"   class="detail-long-section">${_renderSummarySubtab()}</section>
+                <section id="detail-sec-matchups"  class="detail-long-section">${_renderMatchupsSubtab()}</section>
+                <section id="detail-sec-stats"     class="detail-long-section">${_renderStatsSubtab()}</section>
+                <section id="detail-sec-evolution" class="detail-long-section">${_renderEvolutionSubtab()}</section>
+                <section id="detail-sec-abilities" class="detail-long-section">${_renderAbilitiesSubtab()}</section>
+                <section id="detail-sec-moves"     class="detail-long-section"></section>
+                <section id="detail-sec-locations" class="detail-long-section">${_renderLocationsSubtab()}</section>
+            </div>
         </div>
     `;
 
@@ -188,34 +194,34 @@ function _renderDetailCard() {
     const fs = document.getElementById('detail-form-select');
     if (fs) fs.addEventListener('change', e => _switchDetailForm(e.target.value));
 
-    // Wire subtabs
-    document.querySelectorAll('.detail-subtab').forEach(btn => {
-        btn.addEventListener('click', () => {
-            _detailSubtab = btn.dataset.subtab;
-            document.querySelectorAll('.detail-subtab').forEach(b =>
-                b.classList.toggle('active', b.dataset.subtab === _detailSubtab));
-            _renderSubtabContent();
+    // TOC smooth-scroll
+    document.querySelectorAll('.detail-toc-link').forEach(a => {
+        a.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.getElementById(a.dataset.target);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     });
 
-    _renderSubtabContent();
+    // Moves section uses a method-tab UI that mutates its container
+    const movesEl = document.getElementById('detail-sec-moves');
+    if (movesEl) _renderMovesSubtab(movesEl);
+
+    // Wire interactive bits inside the sections
+    _wireEvoClicks();
+    _wireAbilityClicks();
 }
 
+/* Re-render moves + locations sections when the global version group changes.
+ * (Used to be _renderSubtabContent — now we just hot-swap individual sections.) */
 function _renderSubtabContent() {
     if (!_detail) return;
-    const el = document.getElementById('detail-content');
-    if (!el) return;
-
-    switch (_detailSubtab) {
-        case 'summary':   el.innerHTML = _renderSummarySubtab(); break;
-        case 'matchups':  el.innerHTML = _renderMatchupsSubtab(); break;
-        case 'stats':     el.innerHTML = _renderStatsSubtab(); break;
-        case 'evolution': el.innerHTML = _renderEvolutionSubtab(); _wireEvoClicks(); break;
-        case 'abilities': el.innerHTML = _renderAbilitiesSubtab(); _wireAbilityClicks(); break;
-        case 'moves':     _renderMovesSubtab(el); break;
-        case 'locations': el.innerHTML = _renderLocationsSubtab(); break;
-        default: el.innerHTML = '';
-    }
+    const movesEl = document.getElementById('detail-sec-moves');
+    const locEl = document.getElementById('detail-sec-locations');
+    const evoEl = document.getElementById('detail-sec-evolution');
+    if (movesEl) { _renderMovesSubtab(movesEl); }
+    if (locEl)   { locEl.innerHTML = _renderLocationsSubtab(); }
+    if (evoEl)   { evoEl.innerHTML = _renderEvolutionSubtab(); _wireEvoClicks(); }
 }
 
 /* ========== SUBTAB: SUMMARY ========== */
@@ -251,7 +257,7 @@ function _renderSummarySubtab() {
 function _renderMatchupsSubtab() {
     const { pokemon } = _detail;
     const types = pokemon.types.map(t => t.type.name);
-    const warn = chartMismatchWarning();
+    const warn = chartEraBanner();
     return `
         ${warn ? `<div class="warn-banner" style="margin-bottom:14px;display:block;">${warn}</div>` : ''}
         <div class="section-block">

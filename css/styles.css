@@ -896,6 +896,36 @@ a:hover { text-decoration: underline; }
 }
 .sug-reason strong { color: var(--text); font-weight: 600; }
 
+.sug-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    margin: 4px 0 3px;
+}
+.sug-bst {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.2px;
+}
+.sug-bst.tier-elite  { background: rgba(250, 204, 21, 0.20); color: #fde047; }
+.sug-bst.tier-strong { background: rgba(74, 222, 128, 0.18); color: #86efac; }
+.sug-bst.tier-decent { background: rgba(90, 180, 255, 0.16); color: #93c5fd; }
+.sug-bst.tier-weak   { background: rgba(248, 113, 113, 0.16); color: #fca5a5; }
+
+.sug-role-tag {
+    font-size: 10px;
+    color: var(--text-dim);
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--bg-3);
+    border: 1px solid var(--border-soft);
+    font-weight: 500;
+}
+
 .sug-actions {
     display: flex;
     flex-direction: column;
@@ -2012,6 +2042,56 @@ main {
 }
 .detail-subtab:hover { color: var(--text); background: var(--bg-3); }
 .detail-subtab.active { background: var(--accent); color: #07111e; font-weight: 600; }
+
+/* Long-form detail: sticky TOC nav + sections stacked */
+.detail-toc {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    gap: 4px;
+    padding: 10px 18px;
+    overflow-x: auto;
+    background: rgba(15, 26, 45, 0.92);
+    border-bottom: 1px solid var(--border-soft);
+    backdrop-filter: blur(10px);
+}
+.detail-toc-link {
+    color: var(--text-dim);
+    background: var(--bg-3);
+    border: 1px solid var(--border-soft);
+    padding: 5px 11px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.15s;
+}
+.detail-toc-link:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    text-decoration: none;
+}
+
+.detail-content-long {
+    padding: 0 22px 22px;
+}
+.detail-long-section {
+    padding-top: 22px;
+    scroll-margin-top: 60px;       /* TOC offset for smooth scroll */
+}
+.detail-long-section:not(:last-child) {
+    border-bottom: 1px dashed var(--border-soft);
+    padding-bottom: 4px;
+}
+
+@media (max-width: 640px) {
+    .detail-toc { padding: 8px 12px; gap: 3px; }
+    .detail-toc-link { padding: 5px 10px; font-size: 11.5px; }
+    .detail-content-long { padding: 0 14px 14px; }
+    .detail-long-section { padding-top: 16px; scroll-margin-top: 56px; }
+}
 
 .detail-content {
     padding: 22px;
