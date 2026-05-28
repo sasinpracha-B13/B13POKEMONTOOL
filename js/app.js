@@ -76,6 +76,17 @@ function _registerSW() {
                 }
             });
         });
+
+        // iOS Safari is sticky with SW updates — kick a manual check on
+        // load and again every time the app comes back to foreground.
+        // This forces the browser to re-fetch sw.js and see APP_SHELL_VERSION
+        // bumps without the user having to mess with cache settings.
+        const checkUpdate = () => { try { reg.update(); } catch (e) {} };
+        checkUpdate();
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') checkUpdate();
+        });
+        window.addEventListener('focus', checkUpdate);
     }).catch(err => {
         console.warn('SW register failed', err);
         if (status) { status.textContent = 'SW: error'; status.classList.add('error'); }

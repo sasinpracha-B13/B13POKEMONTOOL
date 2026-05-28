@@ -95,16 +95,25 @@ async function loadDetailPokemon(query) {
         _pushDetailRecent(pokemon.name);
         _renderDetailCard();
     } catch (e) {
-        console.error(e);
+        console.error('[detail] load error for', query, e);
+        const isFetchErr = /API error|Failed to fetch|404/i.test(e?.message || '');
         if (!navigator.onLine) {
             container.innerHTML = `<div class="error-state">
                 📵 <strong>Offline</strong> — โปเกม่อน "${query}" ยังไม่เคย cache ในเครื่องนี้<br>
                 <small style="opacity:0.85">ลองค้นโปเกม่อนที่เคยดูแล้ว หรือต่อเน็ตกลับ</small>
             </div>`;
-        } else {
+        } else if (isFetchErr) {
             container.innerHTML = `<div class="error-state">
                 ❌ ไม่พบโปเกม่อน "${query}"<br>
                 <small style="opacity:0.7">${e.message || ''}</small>
+            </div>`;
+        } else {
+            // Render-side error (e.g., undefined helper from an old cache).
+            // Make this loud so the user knows their app shell is stale.
+            container.innerHTML = `<div class="error-state">
+                ⚠ พบ error ขณะแสดงผล "${query}" — น่าจะเป็นไฟล์เก่าที่ cache ค้างอยู่<br>
+                <small style="opacity:0.85">กดปุ่ม <strong>🔄 Update app</strong> ที่ footer เพื่อโหลด version ใหม่</small><br>
+                <code style="display:block;margin-top:8px;padding:6px 10px;background:var(--bg);border-radius:6px;font-size:11px;opacity:0.7;">${e?.message || e}</code>
             </div>`;
         }
     }
