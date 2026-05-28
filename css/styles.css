@@ -433,20 +433,21 @@ a:hover { text-decoration: underline; }
     background: var(--card);
 }
 
-/* ----- Import dialog modal ----- */
+/* ----- Import dialog modal -----
+ * Inline `style="display:none"` keeps the overlay hidden until JS
+ * sets `style.display = 'flex'`. We do NOT use !important here so
+ * the inline style stays authoritative. */
 .import-dialog {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.55);
     z-index: 200;
-    display: flex !important;
     align-items: center;
     justify-content: center;
     padding: 20px;
     backdrop-filter: blur(6px);
     animation: fade-in 0.15s ease;
 }
-.import-dialog[style*="display: none"] { display: none !important; }
 
 .import-dialog-card {
     background: var(--card);

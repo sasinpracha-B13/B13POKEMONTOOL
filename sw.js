@@ -20,7 +20,7 @@
  *                                     reload)
  * ============================================================ */
 
-const APP_SHELL_VERSION = 'v8';
+const APP_SHELL_VERSION = 'v9';
 const APP_SHELL_CACHE = `poketool-shell-${APP_SHELL_VERSION}`;
 const POKEAPI_CACHE   = 'poketool-pokeapi-v1';
 
